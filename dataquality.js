@@ -1,6 +1,7 @@
 // Data Quality: headless sanity checks for Yatayat System data.
 
 var DQ = DQ || {};
+var _ = _ || require("underscore");
 
 // nearestStops returns squared-distance; 
 // regardless, this is a magic number.
@@ -42,7 +43,8 @@ DQ.sanityChecks = {
                 out += "\n";
                 return out;
             }
-        }
+        },
+        kind: 'WARNING'
     },
 
     "first segment doesn't end at a stop": {
@@ -63,7 +65,8 @@ DQ.sanityChecks = {
                 return "First segment of route (id:" + route.segments[0].id + 
                     ") doesn't start at a properly key-ed stop.\n";
             }
-        }
+        },
+        kind: 'WARNING'
     },
 
     "unnamed stops":  {
@@ -92,7 +95,8 @@ DQ.sanityChecks = {
                 out += "\n";
                 return out;
             }
-        }
+        },
+        kind: 'WARNING'
     },
 
     "no terminus": {
@@ -104,7 +108,8 @@ DQ.sanityChecks = {
             if(run_output) {
                 return "No terminus\n\n";
             }
-        }
+        },
+        kind: 'ERROR'
     },
 
     "unconnected segments": {
@@ -129,7 +134,8 @@ DQ.sanityChecks = {
                 out += "\n";
                 return out;
             }
-        }
+        },
+        kind: 'ERROR'
     },
 
     "similar names": {
@@ -228,7 +234,8 @@ DQ.sanityChecks = {
                 out += "\n";
                 return out;
             }
-        }
+        },
+        kind: 'WARNING'
     }
 };
 
@@ -239,26 +246,38 @@ DQ.similarNames = DQ.sanityChecks["similar names"].run;
 DQ.noTerminus = DQ.sanityChecks["no terminus"].run;
 DQ.unconnectedSegments = DQ.sanityChecks["unconnected segments"].run;
 
-DQ.findErrors = function(system) {
-    // Returns an errorstrings;
-    // an empty string means no errors were found.
-    var out = "";
-    system.routes.forEach(function(route) {
-        var haserrors = false;
-        for(var testname in DQ.sanityChecks) {
-            var res = DQ.sanityChecks[testname].run(route, system);
-            var errout = DQ.sanityChecks[testname].print(res, route, system);
-            if(errout) {
-                if(!haserrors) {
-                    out += "\n### Route: " + route.name + " (" + route.id + ")\n\n"
-                    out += "http://yatayat.monsooncollective.org/data_quality.html#" + route.id + "\n\n";
-                    haserrors = true;
-                }
-                out += errout;
-            }
+DQ.errorString = function(system, which) {
+    var which = which || 'ERROR'; // possible options: 'ERROR', 'WARNING'
+    var errForRoute = function(route) {
+        var errs = DQ.findErrorsAndWarnings(route, system)[which];
+        var prequel = "\n### Route: " + route.name + " (" + route.id + ")\n\n" +
+                  "http://yatayat.monsooncollective.org/data_quality.html#" + route.id + "\n\n";
+        return errs ? prequel + errs : "";
+    };
+    return _.chain(system.routes)
+        .map(errForRoute)
+        .reduce(function(a, b) { return a+b; }, "")
+        .value();
+};
+
+DQ.findErrorsAndWarnings = function(route, system) {
+    var retval = {};
+    //TODO: If route is undefined
+    _(DQ.sanityChecks).each(function(v, testname) {
+        var test = DQ.sanityChecks[testname];
+        var res = test.run(route, system);
+        var errout = test.print(res, route, system);
+        if(errout) {
+            if(!(test.kind in retval)) // warning or error not added yet
+                retval[test.kind] = [errout];
+            else 
+                retval[test.kind].push(errout);
         }
     });
-    return out;
+    return retval;
+};
+DQ.findAllErrorsAndWarnings = function(system) {
+    return system.routes.map(function(r) { return DQ.findErrorsAndWarnings(r, system); });
 };
 DQ.findCorrectRoutes = function(system) {
     return system.routes.filter(function(route) {

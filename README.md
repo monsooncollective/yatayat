@@ -64,7 +64,7 @@ all external dependencies can be installed via APT:
 Elsewhere, you can try your luck with NPM:
 
 ```sh
-% npm install jquery underscore
+% npm install jquery underscore docopt
 ```
 
 Then, you can run:

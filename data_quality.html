@@ -48,6 +48,7 @@ var map = new L.Map('publicTransportMap'),
 renderLayer,
 sys;
 
+// Changes which route is being viewed -- by changing page-global-var renderLayer
 function editRouteByIdx(idx) {
     if(renderLayer) {
         map.removeLayer(renderLayer);
@@ -55,6 +56,7 @@ function editRouteByIdx(idx) {
     renderLayer = YY.error_render(sys, sys.routes[idx], document.getElementById('errorLog'));
     map.addLayer(renderLayer);
 }
+// Simple helper function; find the route index.
 function getRouteIdx(id) {
     for(var idx=0; idx<sys.routes.length; idx++) {
         if(sys.routes[idx].id === id) {
@@ -63,6 +65,7 @@ function getRouteIdx(id) {
     }
     return -1;
 }
+// Given the window hash, change the route on display 
 function editRouteByHash() {
     var route_id = window.location.hash.slice(1);
     var idx = getRouteIdx(route_id);
