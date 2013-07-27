@@ -48,6 +48,12 @@ var map = new L.Map('publicTransportMap'),
 renderLayer,
 sys;
 
+var osmUrl='http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png';
+var osmAttrib='Map data © OpenStreetMap contributors';
+var osm = new L.TileLayer(osmUrl, {minZoom: 8, maxZoom: 22, attribution: osmAttrib})
+//map.setView(new L.LatLng(),9);
+map.addLayer(osm)
+
 // Changes which route is being viewed -- by changing page-global-var renderLayer
 function editRouteByIdx(idx) {
     if(renderLayer) {

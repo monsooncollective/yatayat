@@ -2,7 +2,7 @@
     "API_URL": "transit.stable.xml",
     "GET_OR_POST": "GET",
     "WAX": true,
-    "TILE_SOURCE": "http://a.tiles.mapbox.com/v3/modilabs.map-p543gvbh.jsonp",
+    "TILE_SOURCE": "http://a.tiles.mapbox.com/v3/amritkarma.map-6c5zckhu.jsonp",
     "ATTRIBUTION": "Tiles Courtesy of <a href=\"http://www.mapquest.com/\" target=\"_blank\">MapQuest</a> <img src=\"http://developer.mapquest.com/content/osm/mq_logo.png\">",
     "LNG": 85.3,
     "LAT": 27.7

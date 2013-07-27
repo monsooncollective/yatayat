@@ -10,10 +10,23 @@
 body {
   margin:0;
 }
+#routename {
+position: absolute;
+bottom: 0;
+right: 0;
+height: 100%;
+background-color: black;
+color: #00ff00;
+width: 20%;
+overflow: auto;
+}
+
 </style>
 <script src="lib/jquery-1.7.2.min.js"></script>
 <script src="lib/underscore-min.js"></script>
 <script src="lib/leaflet/leaflet.js"></script>
+<script src="lib/leaflet/spin.min.js"></script>
+<script src="lib/leaflet/leaflet.spin.js"></script>
 <script src="lib/wax.leaf.min.js"></script>
 <script src="lib/kdtree/src/web/kdTree.js"></script>
 <script src="lib/bootstrap/js/bootstrap.min.js"></script>
@@ -27,24 +40,29 @@ body {
             <input type="checkbox" name="vehicle3" value="tempo"checked ="yes"/>Tempo (3 - wheeler)
         </div>
         -->
+
+        
         <div id="textboxes" style="position:absolute;top:20;left:60;z-index:999"> 
             <b>Start</b> <input type="text" id="startstop" class="typeahead" data-provide="typeahead" class="span1"/>
             <b>End</b> <input type="text" id="endstop" class="typeahead" data-provide="typeahead" class="span1"/>
             <a class="btn" onclick="$('.typeahead').val(''); $('#routedisplay').hide(); YY.render_(system,map);"> Clear </a>
         </div>
         <div id="report" style="position:absolute;top:20;right:60;z-index:999">
-            <a class="btn" id="reportmissing" data-toggle="modal" href="#myModal"> Report missing route </a> 
+            <!-- <a class="btn" id="reportmissing" data-toggle="modal" href="#myModal"> Report missing route </a>  -->
         </div>
         <div class="alert" id="routedisplay" style="background:white;position:absolute;top:60;left:60;z-index:999">
         </div>
-        <div id="publicTransportMap" style="width: 100%; height: 100%">Loading ...</div>
+        <div id="publicTransportMap" style="width:80%; height: 100%">Loading ...</div>
         <div class="modal hide" id="myModal"> 
             <div class="modal-header">
                 <button type="button" class="close" data-dismiss="modal">X</button>
             </div>
             <br/>
-            <iframe src="https://docs.google.com/spreadsheet/embeddedform?formkey=dFdZeG9PYnVpY1FBMk4zVjBDaFNua1E6MQ" width="700" height="500" frameborder="0" marginheight="0" marginwidth="0">Loading...</iframe>
+            <!-- <iframe src="https://docs.google.com/spreadsheet/embeddedform?formkey=dFdZeG9PYnVpY1FBMk4zVjBDaFNua1E6MQ" width="700" height="500" frameborder="0" marginheight="0" marginwidth="0">Loading...</iframe> -->
+        <!-- <suresh work> -->
         </div>
+        <!-- <suresh work end> -->
+
 
 <script type="text/javascript" language="javascript">
     // UI HACK
@@ -52,83 +70,175 @@ body {
     $('#routedisplay').hide()
     // initialize the map
     var map = new L.Map('publicTransportMap');
+    var LC = new L.Control.Layers().addTo(map);
 
     //var ktmBB = "85.2885,27.6839,85.3368,27.7299";
     var system;
     var osmdata;
+    var routed;
+    var routed_route;
+    
 
-YY.fromConfig("config.stable.json", function(sys) {
-    system = sys;
-	YY.render_(system, map,
-			   undefined, //includeIDObject; try {"2269045": true} for an example
-			   undefined // leafletBaseOptions
-			  );
+YY.fromConfig("config.stable.json", 
+    function(sys) {
+        system = sys;
+        console.log(system);
+    	YY.render_(system, 
+                    map,
+                    undefined, //includeIDObject; try {"2269045": true} for an example
+                    undefined // leafletBaseOptions
+    			  );
+        //displaying stop name over stops
+        /*_.each(system.allStops(),function( v, key, list ) {
+            console.log('stoop name',v.name)
+            L.marker([v.lat,v.lng],{icon:L.divIcon({html:v.name})}).addTo(map);//.showLabel();//.bindLabel(v.name),{noHide:true})
+          // 
+        })
+        */
 
-    //ROUTING
-    var stopNames = _.compact(_.pluck(system.allStops(), 'name'));
-    $('.typeahead').typeahead({source: stopNames});
-    $('#textboxes').show();
-    $('input.typeahead').change(function(f) {
-        var start = $('#startstop')[0].value;
-        var end = $('#endstop')[0].value;
-        if (start && end) {
-            console.log('routing from', start,' to ',end);
-            var gettingThereRoutes = system.takeMeThereByName(start, end);
-            if (gettingThereRoutes === 'FAIL') alert('cannot find a route from ', start, ' to ', end);
-            else {
-                var inclusionDict = {};
-                var overrideDict = {};
-                var outputHTML = "";
-                _(system.routes).each(function(r) { inclusionDict[r.id] = true; }); // render everything
-                _(gettingThereRoutes).each(function(r,idx) {
-                    //inclusionDict[r.id] = true;
-                    outputHTML += "Get on " + toTitleCase(r.transport) + " " + 
-                        r.ref + " (" + r.name + ") at " + r.stops[0].name + 
-                        " and ride till " + _.last(r.stops).name + "<br/>";
-                    _(r.stops).each(function(s) {
-                        inclusionDict[s.id] = true;
-                    });
-                    if (idx===0) {
-                        overrideDict[r.stops[0].id] = {color: 'orange', opacity: 1, radius: 8};
-                    } else { 
-                        overrideDict[r.stops[0].id] = {color: 'orange', opacity: 1, radius: 8};
+        //ROUTING
+        var stopNames = _.compact(_.pluck(system.allStops(), 'name'));
+        $('.typeahead').typeahead({source: stopNames});
+        $('#textboxes').show();
+        
+        $('input.typeahead').change(function(f) {
+            map.spin(true);
+            var start = $('#startstop')[0].value;
+            var end = $('#endstop')[0].value;
+            if (start && end) {
+                // console.log('routing from', start,' to ',end);
+                if (!YY._routeGroup) { YY._routeGroup = new L.LayerGroup(); }
+                YY._routeGroup.clearLayers();
+                var gettingThereRoutes = system.takeMeThereByName(start, end);
+                routed = gettingThereRoutes;
+                if (gettingThereRoutes === 'FAIL') alert('cannot find a route from ', start, ' to ', end);
+                else {
+                    console.log('gettingThereRoutes',gettingThereRoutes);
+                    var inclusionDict = {};
+                    var overrideDict = {};
+                    var outputHTML = "";
+                    _(system.routes).each(function(r) { inclusionDict[r.id] = true; }); // render everything
+                    counter =0 ;
+                    _(gettingThereRoutes).each(function(r,idx) {
+                        //inclusionDict[r.id] = true;
+                        outputHTML += "Get on " + toTitleCase(r.transport) + " " + 
+                            r.ref + " (" + r.name + ") at " + r.stops[0].name + 
+                            " and ride till " + _.last(r.stops).name + "<br/>";
+                        _(r.stops).each(function(s) {
+                            inclusionDict[s.id] = true;
+                        });
+                        if (idx===0) {
+                            overrideDict[r.stops[0].id] = {color: 'orange', opacity: 1, radius: 8};
+                        } else { 
+                            overrideDict[r.stops[0].id] = {color: 'orange', opacity: 1, radius: 8};
+                        }
+                        if (idx === gettingThereRoutes.length - 1)
+                            overrideDict[_.last(r.stops).id] = {color: 'orange', opacity: 1, radius: 8};
+
+                    //show routed route
+                        var startseg=[];
+                        var endseg=[];
+                        //finding index of first and last segment in list of segment
+                        _(r.segments).each( function(seg) {
+                            // if(startseg.length==0){
+                                _(seg.listOfLatLng).each(function(ll){
+                                    if(ll[0]==r.stops[0].lat&&ll[1]==r.stops[0].lng){
+                                        // startseg.push([r.segments.indexOf(seg),seg]);
+                                        startseg =[r.segments.indexOf(seg),seg];
+                                        console.log('start',startseg);
+                                    }
+                                })
+                            // }
+                            // if(endseg.length==0){
+                                _(seg.listOfLatLng).each(function(ll){
+                                    if(ll[0]==_.last(r.stops).lat&&ll[1]==_.last(r.stops).lng){
+                                        // endseg.push([r.segments.indexOf(seg),seg]);
+                                        endseg =[r.segments.indexOf(seg),seg];
+                                        console.log('end',endseg);
+                                    }
+                                })
+                            // }
+                        });
+                        //index found and saved as 1st element in startseg and endseg
+                        // alert();
+                        //actually drawing the route
+                        var defaultOptions = 
+                        {"route" : function() { return {color: get_random_color(), opacity: 1, weight: 10}; },
+                         "stop"  : {color: '#378AAD', fillOpacity: 0.5, radius: 5}
+                        };
+
+                         var eachroutestyleoption = defaultOptions.route();
+
+
+                        // for(segid = startseg[0];segid != endseg[0];)
+                        for(segid = Math.min(startseg[0],endseg[0]);segid <= Math.max(startseg[0],endseg[0]);segid++)
+                        // segid = startseg[0];
+                        // while(segid!=endseg[0])
+                        {
+                            seg = r.segments[segid];
+                            console.log("comp",segid!=endseg[0]);
+                            _(seg).each(function(s){
+                                var segMPL = new L.Polyline(
+                                    _.map(seg.listOfLatLng, function(LL) {
+                                        return new L.LatLng(LL[0], LL[1]);
+                                    }),eachroutestyleoption);
+                                segMPL.bindPopup("<a href='http://www.openstreetmap.org/browse/way/"+seg.id+"' target='_blank'>"+seg.id+"</a>,"+segid+"");
+                                YY._routeGroup.addLayer(segMPL);
+                                LC.addOverlay(segMPL);
+                            });
+                        }
+                        // console.log('routed_route',routed_route);
+
+                        map.removeLayer(YY._routeGroup);
+                        map.addLayer(YY._routeGroup);
+                        console.log('counter',++counter);
                     }
-                    if (idx === gettingThereRoutes.length - 1)
-                        overrideDict[_.last(r.stops).id] = {color: 'orange', opacity: 1, radius: 8};
-                });
-                YY.render_(system, map, inclusionDict,
-                           {route: {color: '#555', opacity: 1, weight: 1}},
-                           overrideDict
-                          );
-                $('#routedisplay').show();
-                $('#routedisplay').html(outputHTML);
+                    //
+                    );
+
+
+                    YY.render_(system, map, inclusionDict,
+                               {route: {color: '#555', opacity: 1, weight: 1}},
+                               overrideDict
+                              );
+                    $('#routedisplay').show();
+                    $('#routedisplay').html(outputHTML);
+                    map.spin(false);  
+
+                }
+            } else {
+                YY.render_(system, map);
+                $('#routedisplay').hide()
+                map.spin(false);  
             }
-        } else {
-            YY.render_(system, map);
-            $('#routedisplay').hide()
+        });
+// suresh work
+        routeinfopanel(system.routes);
+// suresh work end
+        if(YY.TILE_SOURCE) {
+            if (YY.WAX) {
+                wax.tilejson(YY.TILE_SOURCE, function(tilejson) {
+                    map.addLayer(new wax.leaf.connector(tilejson));
+                });
+            } else {
+                var tiles = new L.TileLayer(YY.TILE_SOURCE, {
+                    attribution: YY.ATTRIBUTION
+                });
+                map.addLayer(tiles);
+            }
+
+            // add the layer to the map, set the view to a given place and zoom
         }
+
+        map.setView(new L.LatLng(YY.LAT, YY.LNG), 13);
+
+        //auto init routing at start
+    // document.getElementById("startstop").value="Sinamangal";
+    // document.getElementById("endstop").value="Jamal";
+    // $('#endstop').change();
+    console.log("script end",system);
+    
     });
-    if(YY.TILE_SOURCE) {
-        if (YY.WAX) {
-            wax.tilejson(YY.TILE_SOURCE, function(tilejson) {
-                map.addLayer(new wax.leaf.connector(tilejson));
-            });
-        } else {
-            var tiles = new L.TileLayer(YY.TILE_SOURCE, {
-                attribution: YY.ATTRIBUTION,
-                maxZoom: 18
-            });
-            map.addLayer(tiles);
-        }
-
-        // add the layer to the map, set the view to a given place and zoom
-    }
-
-    map.setView(new L.LatLng(YY.LAT, YY.LNG), 13);
-
-});
-
-
 
     YY.viz = function(route, map) {
     route.segments.forEach(function(seg, idx) {
@@ -140,9 +250,19 @@ YY.fromConfig("config.stable.json", function(sys) {
         map.addLayer(new L.Circle(latlngs[0], 2, {color: 'blue', opacity: 0.5}));
         map.addLayer(new L.Circle(latlngs[latlngs.length-1], 2, {color: 'green', opacity: 0.5}));
         poly.bindPopup(route.name);
+        console.log("inside viz");
         map.addLayer(poly);
     });
     };
+
+    function get_random_color() {
+    var letters = '0123456789ABCDEF'.split('');
+    var color = '#';
+    for (var i = 0; i < 6; i++ ) {
+        color += letters[Math.round(Math.random() * 15)];
+    }
+    return color;
+    }
 
     YY.render_ = function(system, map, includeIDDict, leafletBaseOptions, leafletOverrideOptions) {
         //TODO: Handle overrideOptions
@@ -152,23 +272,20 @@ YY.fromConfig("config.stable.json", function(sys) {
         
         var filteredSystem = system.prune(includeIDDict);
         var defaultOptions = 
-            {"route" : {color: '#378AAD', opacity: 1, weight: 3},
+            {"route" : function() { return {color: get_random_color(), opacity: 1, weight: 6}; },
              "stop"  : {color: '#378AAD', fillOpacity: 0.5, radius: 5}};
         // render the route as a multi-polyline
         _(filteredSystem.routes).each(function(route) {
-            var routeMPL = new L.MultiPolyline(
-                _.map(route.segments, function(seg) {
-                    return _.map(seg.listOfLatLng, function(LL) {
-                        return new L.LatLng(LL[0], LL[1]);
-                    });
-                }),
-                (leafletBaseOptions && leafletBaseOptions.route) || 
-                    defaultOptions.route);
-            if (leafletOverrideOptions && (route.id in leafletOverrideOptions)) {
-                routeMPL.setOptions(leafletOverrideOptions[route.id] || leafletBaseOptions.route);
-            }
-            routeMPL.bindPopup(route.ref + " : " + route.name);
-            YY._layerGroup.addLayer(routeMPL);
+            route.segments.forEach(function(seg) {
+                var segMPL = new L.Polyline(
+                        _.map(seg.listOfLatLng, function(LL) {
+                            return new L.LatLng(LL[0], LL[1]);
+                        }),
+                    (leafletBaseOptions && leafletBaseOptions.route) || 
+                        defaultOptions.route());
+                // segMPL.bindPopup(route.ref + " : " + route.name);
+                YY._layerGroup.addLayer(segMPL);
+            });
         });
         // render the stops as circle markers 
         _(filteredSystem.routes).each(function(route) { 
@@ -184,7 +301,8 @@ YY.fromConfig("config.stable.json", function(sys) {
                         (leafletBaseOptions && leafletBaseOptions.stop) ||
                             defaultOptions.stop);
                 }
-                marker.bindPopup(stop.name);
+                // marker.bindPopup(stop.name+"</br><a href='#'onclick='alert(\""+stop.name+"\")'>From Here</a>");
+                marker.bindPopup(stop.name+"</br><a href='#' onclick='document.getElementById(\"startstop\").value=\""+stop.name+"\";$(\"#startstop\").change()'>From Here</a>"+"</br><a href='#' onclick='document.getElementById(\"endstop\").value=\""+stop.name+"\";$(\"#endstop\").change()'>To Here</a>");
                 YY._layerGroup.addLayer(marker);
             });
         });
@@ -202,8 +320,32 @@ YY.fromConfig("config.stable.json", function(sys) {
         // var script = document.createElement('script');
         // script.setAttribute('src', 'sample/test.js');
         // document.body.appendChild(script);
-
-     
+// suresh works
+    function routeinfopanel(routes){
+        console.log("routeinfo")
+        panel = document.getElementById("routename");
+        _(routes).each(function(r){
+            rdiv = document.createElement('div');
+            rdiv.id = "route_"+r.id;
+            rdiv.innerHTML = r.name;
+            // rdiv.onclick= map.addLayer(YY.render_(r, routes[r.id], document.getElementById(rdiv)));
+            rdiv.setAttribute("onclick","alert('name')");
+            panel.appendChild(rdiv);
+        }
+        )
+    }
+// suresh works end
 </script>
+<div id="routename">
+            <b>Nammmmmmmmmm</b>
+        <script>
+        console.log("script start",system);
+        //     System.routes.forEach(function(route){
+        //     var s;
+        //     (route.name).addTo(s);
+        // });
+        // document.write(s);
+        </script>           
+        </div>
 </body>
 </html>

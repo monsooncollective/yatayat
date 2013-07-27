@@ -13,12 +13,7 @@ import sys
 import urllib2
 
 def email(address, errors, subject="QC Errors found in today's Overpass data"):
-    msg = """To: %s
-From: Yatayat Sanity Bot <yatayat@NUMM.ORG>
-Subject: %s
-
-%s
-""" % (address, subject, errors)
+    msg = """To: %s From: Yatayat Sanity Bot <yatayat@NUMM.ORG> Subject: %s %s """ % (address, subject, errors)
     p = subprocess.Popen(["/usr/lib/sendmail", '--', address],
                      stdin=subprocess.PIPE)
     p.stdin.write(msg)

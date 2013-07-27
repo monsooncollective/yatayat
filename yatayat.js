@@ -46,6 +46,7 @@ YY.System.prototype.stopRoutesFromStopID = function(stopID) {
 
 YY.System.prototype.stopRoutesFromStopName = function(stopName) {
     var aggregator = [];
+    // console.log(this);
     _(this.routes).each(function (r) {
         _(r.stops).each(function (s) {
             if (s.name === stopName) {
@@ -53,6 +54,7 @@ YY.System.prototype.stopRoutesFromStopName = function(stopName) {
             }
         });
     });
+    // console.log(aggregator)
     return aggregator;
 };
 
@@ -267,9 +269,17 @@ YY.Route.prototype.order_ = function(orientingSegmentID) {
     var endKDTree = new kdTree(_.map(route.segments, function(seg) { return llToObj(_.last(seg.listOfLatLng), seg); }), 
                         distanceForObjLL, ["lat","lng"]);
 
-    // find, among all the 'start' and 'end' points in other segments, what the closest endpoint is
-    // and then put it in the segmentOrderObj, which is a linked list in the form on an obj 
-    // (segmentOrderDict[seg.id]) == followingSeg.id, where followingSeg is the segment that should be after seg
+    /**
+     * find, among all the 'start' and 'end' points in other segments, what the closest endpoint is
+     and then put it in the segmentOrderObj, which is a linked list in the form on an obj 
+     (segmentOrderDict[seg.id]) == followingSeg.id, where followingSeg is the segment that should be after seg
+     * @param  {segment} thisSegment [description]
+     * @param  {string} end         ["first" or null]
+     * @return {[type]}             [description]
+     * variables info:
+     *     nextFwdTreeCnxn -> segment.id
+     *     nextBwdTreeCnxn -> segment.id
+     */
     function closestSegment(thisSegment, end) {
         var ret, segmentEnd;
         if (end === 'first') {
@@ -360,18 +370,27 @@ YY.Segment = function(id, listOfLatLng, tag, orderedStops) {
 YY.fromConfig = function(config_path, cb) {
     // sequentially loads config file, and the system it calls for
     // cb is called on the resulting system.
+    // console.log('$ in fromConfig',$);
+    //   
     $.getJSON(config_path, {}, function(conf) {
         // blend in the conf to the YY namespace
         for(var key in conf) {
             YY[key] = conf[key];
         }
         // load in & parse XML
-        $.ajax({type: YY.GET_OR_POST, url: YY.API_URL,
+        // console.log('cb',cb);
+        map.spin(true);
+
+        $.ajax(
+            {   type: YY.GET_OR_POST, 
+                url: YY.API_URL,
                 data: YY.QUERY_STRING,
                 dataType: "text",
                 success: function(res) {
                     cb(YY.fromOSM(res));
-                }});
+                    map.spin(false);
+                }
+            });
     });
 };
 
@@ -452,7 +471,7 @@ YY.fromOSM = function (overpassXML) {
     routes = routes.filter(function(x) { return x.transport !== "hiking"; });
 
     return new YY.System(routes);
-};
+}
 
 // COLORS MODULE
 var colors = (function() {
