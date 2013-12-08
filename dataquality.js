@@ -58,6 +58,7 @@ DQ.sanityChecks = {
             return firstStop.lat == firstSegmentEnd[0] && firstStop.lng == firstSegmentEnd[1];
         },
         print: function(run_output, route) {
+            debugger;
             if (run_output) {
                 if(route.stops.length === 0 || route.segments.length === 0) {
                     return "Without stops or segments, it's silly to talk about whether the first segment will end at a stop.\n\n";

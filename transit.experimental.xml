@@ -76,7 +76,10 @@
   <node id="31148993" lat="27.7097482" lon="85.3220986"/>
   <node id="31149032" lat="27.7080005" lon="85.3199425"/>
   <node id="31149080" lat="27.7099550" lon="85.3203228"/>
-  <node id="31149202" lat="27.7081002" lon="85.3168181"/>
+  <node id="31149202" lat="27.7081002" lon="85.3168181">
+    <tag k="name" v="Tri Chandra (experimental stop)"/>
+    <tag k="public_transport" v="stop_position"/>
+  </node>
   <node id="31149337" lat="27.7090647" lon="85.3171041"/>
   <node id="31149921" lat="27.7060210" lon="85.3170218"/>
   <node id="31150335" lat="27.7016817" lon="85.3222776"/>

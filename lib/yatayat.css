@@ -1,0 +1,56 @@
+<style>
+body {
+    margin: 0;
+}
+
+#accordion2 {
+    position: absolute;
+    top: 0;
+    right: 0;
+    height: 100%;
+    background-color: ; color: #00ff00;
+    width: 20%;
+    overflow: auto;
+    font-size: 15;
+}
+
+#Title {
+    position: absolute;
+    top: 20 px;
+    left: 25%;
+    height: 30;
+    background-color: rgb(53, 240, 240);
+    color: black;
+    width: 465;
+    z-index: 1000;
+    text-align: center;
+    font-size: 25;
+    border-radius: 20;
+}
+
+label {
+    width: 100%;
+    color: #050;
+    font: bold 84% 'trebuchet
+            ms',helvetica,sans-serif;
+    background-color: #fed;
+    border: 1px solid;
+    border-color: #696 #363 #363 #696;
+}
+
+input[type="radio"]{
+	position: absolute;
+	left:0px;
+	top:0px;
+}
+.leaflet-control-geocoder {
+	box-shadow: 0 1px 7px #999;
+	background: #f8f8f9;
+	-moz-border-radius: 8px;
+	-webkit-radius: 8px;
+	left: 35;
+	height: 50;
+	position: absolute;
+}
+</style>
+

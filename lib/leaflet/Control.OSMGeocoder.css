@@ -1,0 +1,39 @@
+.leaflet-control-geocoder a {
+	background-position: 50% 50%;
+	background-repeat: no-repeat;
+	display: block;
+}
+
+.leaflet-control-geocoder {
+	box-shadow: 0 5px 7px #999;
+	background: #f8f8f9;
+	-moz-border-radius: 15px;
+	-webkit-border-radius: 15px;
+	left: 100;
+	border-radius: 15px;
+}
+
+.leaflet-control-geocoder a {
+	background-image: url(images/findd.png);
+	width: 50px;
+	height: 50px;
+}
+
+.leaflet-touch .leaflet-control-geocoder a {
+	width: 65px;
+	height: 65px;
+}
+
+.leaflet-control-geocoder .leaflet-control-geocoder-form,
+.leaflet-control-geocoder-expanded .leaflet-control-geocoder-toggle {
+	display: none;
+}
+
+.leaflet-control-geocoder-expanded .leaflet-control-geocoder-form {
+	display: block;
+	position: relative;
+}
+
+.leaflet-control-geocoder-expanded .leaflet-control-geocoder-form {
+	padding: 10px;
+}

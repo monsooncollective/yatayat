@@ -40,6 +40,7 @@ body {
 </head>
 <body>
 <div id="publicTransportMap" style="width: 100%; height: 100%">Loading ...</div>
+<pre></pre>
 <pre id="error"><b>WARNINGS</b><ol id="errorLog"> </ol></pre>
 <select id="routepicker"></select>
 <script type="text/javascript" language="javascript">
@@ -47,6 +48,17 @@ body {
 var map = new L.Map('publicTransportMap'),
 renderLayer,
 sys;
+
+// <iframe width='500' height='300' frameBorder='0' src='http://a.tiles.mapbox.com/v3/suress.map-n0sqwkgh.html#12/27.70131190165252/85.35158157348633'></iframe>
+
+var osmUrl='http://a.tiles.mapbox.com/v3/suress.map-n0sqwkgh.html#12/27.70131190165252/85.35158157348633'
+var osm=new L.TileLayer(osmUrl, {minZoom: 8, maxZoom: 22})
+map.addLayer(osm)
+// var osmUrl='http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png';
+// var osmAttrib='Map data © OpenStreetMap contributors';
+// var osm = new L.TileLayer(osmUrl, {minZoom: 8, maxZoom: 22, attribution: osmAttrib})
+//map.setView(new L.LatLng(),9);
+// map.addLayer(osm)
 
 // Changes which route is being viewed -- by changing page-global-var renderLayer
 function editRouteByIdx(idx) {
@@ -101,7 +113,7 @@ YY.fromConfig("config.overpass.json", function(system) {
 
 
     sys = system;
-    routeToggler(sys);
+    routeToggler(sys); //generates the route selection box on top right corner
     renderLayer = YY.error_render(sys, sys.routes[0], document.getElementById("errorLog"));
     map.addLayer(renderLayer);
 
@@ -188,7 +200,7 @@ YY.error_render = function(system, route, log) {
     });
     _.each(route.segments,function(seg, idx) {
         var latlngs = seg.listOfLatLng.map(function(LL) { return new L.LatLng(LL[0], LL[1]); });
-        var poly = new L.Polyline(latlngs, {color: 'green'});
+        var poly = new L.Polyline(latlngs, {color: 'blue'});
         layer.addLayer(poly);
         goodPop("seg: "+seg.id, latlngs[Math.floor(latlngs.length / 2)], poly);
     });
@@ -224,7 +236,7 @@ YY.error_render = function(system, route, log) {
         }
         else {
             marker = new L.CircleMarker(ll,
-                                        {color: 'green', opacity:0.2});
+                                        {color: 'red', opacity:1});
 
             goodPop(stop.name + " (id:"+stop.id+")", ll, marker);
 
