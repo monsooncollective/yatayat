@@ -1,0 +1,55 @@
+route_id,route_short_name,route_long_name,route_type
+2276770,10,Purano Bus Park-Thimi,3
+2282031,21,Ratna Park - Kirtipur,3
+2282101,2,Ratna Park - Sundarijal,3
+2295734,5,Ratna Park-Budhanilkantha School,3
+2295986,1,Sundhara-Shankhamul,3
+2301205,5,Purano Bus Park-Shivapuri,3
+2301206,5,Shivapuri-Purano Bus Park,3
+2301263,,Chakrapath Parikrama,3
+2301306,Nepal Yatayat,Balkumari-Gopi Krishna,3
+2301342,26,Purano Bus Park- Patan Dhoka,3
+2301357,-,Naya Baneshwor-Teaching,3
+2301358,-,Teaching-NayaBaneshwar,3
+2302674,,Naikap-Koteshwor,3
+2323381,5,Budhanilkantha School- Ratna Park,3
+2909799,7,Kamalbinayak-Ratnapark,3
+2975649,1,Purano Buspark - Chabahil,3
+2988806,9,Ratnapark-Dadhikot,3
+2988809,4,Purano Bus Park - Sakhu,3
+2988810,5,Purano Bus Park- Budhanilkantha,3
+2988835,20,Ratna Park - Thankot,3
+2988836,20,Thankot - Ratna Park,3
+2988890,7,Bagbazaar-Kamalbinayak,3
+2988891,11,Ratnapark - Panauti,3
+2988893,,Ratnapark-Changu,3
+2988983,,Chyamasingh to Ratnapark,3
+2988993,12,Ratnapark - Dhulikhel,3
+2989012,22,Ratna Park - Daksinkali,3
+2989027,,Changu-Ratnapark,3
+2989036,2,Purano Bus Park - jorpati,3
+2989052,,Ratna Park - Chyamasingh,3
+2989074,4,Sakhu - Purano Bus Park,3
+2989075,4,Jorpati - Purano Bus Park,3
+3014451,7,Bhaktapur-Purano Thimi- Purano Bus Park,3
+3020174,,Gothatar-Purano Buspark,3
+3020212,21,Dhokashi- Chobar gate- Ratnapark,3
+3020213,21,Ratna Park - Panga Dobato- Dhokashi,3
+3020231,21,Ratna Park - Panga Dobato- Nagaun- Bhatkepati,3
+3020244,,Attrekhle-Purano Buspark,3
+3028077,,Balaju-Ratnapark,3
+3062309,,Balkhu-NayaBaneshwor-Sankhamul,3
+3068536,,Kalanki- Lagankhel,3
+3068548,,Lagankhel - Kalanki,3
+3069621,,Balkhu-NayaBaneshwor-Shantinagar-Bhatkya Pul,3
+3070257,,kalanki-Balkumari,3
+3070262,,Kalanki-Pepsacola,3
+3070344,40,Kausaltar-Naikap,3
+3071402,,Gokarna-Chabahil-Naya_Bus_Park-Balaju-kalanki,3
+3072924,,Matathirtha-Naikapl-Chabahil-Kapan,3
+3074202,,kapan-Chabahil-Mitidevi-Ratnapark,3
+3100600,,Kalanki-TIA Airport,3
+3102124,,RNAC-Bishalnagar-Chapal_Karkhana-Mandikhatar,3
+3138552,,Lagankhel - Naya Buspark (sajha),3
+3169466,,Kharibot-NAC,3
+3169489,,NAC-Kharibot,3

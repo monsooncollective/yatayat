@@ -1,0 +1,12 @@
+route_id,service_id,trip_id,shape_id
+2276999,calendar-0,trip-0,shape-0
+2277212,calendar-0,trip-1,shape-1
+2294107,calendar-0,trip-2,shape-2
+2295768,calendar-0,trip-3,shape-3
+2295902,calendar-0,trip-4,shape-4
+2295903,calendar-0,trip-5,shape-5
+2295941,calendar-0,trip-6,shape-6
+2295942,calendar-0,trip-7,shape-7
+3028077,calendar-0,trip-8,shape-8
+3062309,calendar-0,trip-9,shape-9
+3071562,calendar-0,trip-10,shape-10

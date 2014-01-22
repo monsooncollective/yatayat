@@ -1,0 +1,12 @@
+route_id,route_short_name,route_long_name,route_type
+2276999,Annapurna A,Shobhabhagwati-Koteshworer,3
+2277212,annapurna B,Koteshwor - Ratna Park,3
+2294107,14,Ratna Park-Gwarko,3
+2295768,14,Ratnapark-Mangal Bazaar,3
+2295902,1 MA,KattyaniChowk-Sundhara,3
+2295903,1 MA,Sundhara-Milanchowk-KattyaniChowk,3
+2295941,1 MA,Old Baneshwar-Sundhara,3
+2295942,1 MA,Sundhara-Purano Baneshwar,3
+3028077,,Balaju-Ratnapark,3
+3062309,,Balkhu-NayaBaneshwor-Sankhamul,3
+3071562,,Naya Baneshwor, Koteshwor, Satdobato, Lagankhel, Jaulakhel, Kupandol, Naya Baneshwor,3
