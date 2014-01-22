@@ -52,6 +52,9 @@ def parse_args():
     parser.add_argument("--gtfs",
                         default="gtfs",
                         help="Where to serialize GTFS export")
+    parser.add_argument("--yyjson",
+                        default="yy.json",
+                        help="Where to serialize Yatayat JSON export")
     parser.add_argument("--no-overpass",
                         default=False,
                         action="store_true",
@@ -124,8 +127,10 @@ def run():
             os.makedirs(opts.gtfs)
         subprocess.call([NODE, "dump_gtfs.js", opts.stable, opts.gtfs])
 
+        subprocess.call([NODE, "dump_yyjson.js", opts.stable, opts.yyjson])
+
         if not opts.silent:
-            push([opts.experimental, opts.stable, opts.gtfs])
+            push([opts.experimental, opts.stable, opts.gtfs, opts.yyjson])
 
 if __name__=='__main__':
     run()

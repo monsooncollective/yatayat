@@ -1,0 +1,10 @@
+{
+    "API_URL": "yy.json",
+    "YYJSON": true,
+    "GET_OR_POST": "GET",
+    "WAX": false,
+    "TILE_SOURCE": "http://a.tiles.mapbox.com/v3/amritkarma.map-6c5zckhu/{z}/{x}/{y}.png",
+    "ATTRIBUTION": "Tiles Courtesy of <a href=\"http://www.mapquest.com/\" target=\"_blank\">MapQuest</a> <img src=\"http://developer.mapquest.com/content/osm/mq_logo.png\">",
+    "LNG": 85.35,
+    "LAT": 27.7
+}

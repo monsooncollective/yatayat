@@ -512,21 +512,30 @@ YY.fromConfig = function(config_path, cb) {
         // console.log('cb',cb);
         map.spin(true);
         // step 2
-        $.ajax({
-            type: YY.GET_OR_POST,
-            url: YY.API_URL,
-            data: YY.QUERY_STRING,
-            dataType: "text",
-            // step 3
-            success: function(overpassXML) {
-                // convert xml to system object
-                system = YY.fromOSM(overpassXML);
-                // console.timeEnd("parsing xml");
-                // console.profileEnd("parsing xml");
+
+        if(YY.YYJSON) {
+            $.getJSON("yy.json", function(jsonobj) {
                 map.spin(false);
-                cb(system);
-            }
-        });
+                cb(YY.fromJSON(jsonobj));
+            })
+        }
+        else {
+            $.ajax({
+                type: YY.GET_OR_POST,
+                url: YY.API_URL,
+                data: YY.QUERY_STRING,
+                dataType: "text",
+                // step 3
+                success: function(overpassXML) {
+                    // convert xml to system object
+                    system = YY.fromOSM(overpassXML);
+                    // console.timeEnd("parsing xml");
+                    // console.profileEnd("parsing xml");
+                    map.spin(false);
+                    cb(system);
+                }
+            });
+        }
     });
 };
 
@@ -534,6 +543,25 @@ YY.Segment.prototype.flip = function() {
     this.listOfLatLng = _(this.listOfLatLng).reverse();
     this.orderedListofStops = _(this.orderedListofStops).reverse();
 }
+
+YY.fromJSON = function(obj) {
+    return new YY.System(_.map(obj.routes, function(route, id) {
+        return new YY.Route(id,
+                            _.map(route.stops, function(stopid) {
+                                var stop = obj.stops[stopid];
+                                return new YY.Stop(stopid,
+                                                   stop.latLng[0],
+                                                   stop.latLng[1],
+                                                   stop.tag);
+                            }),
+                            _.map(route.segments, function(segid) {
+                                var seg = obj.segments[segid];
+                                return new YY.Segment(segid,
+                                                      seg.listOfLatLng);
+                            }),
+                            route.tag);
+    }));
+};
 
 /**
  * Converts a file containing routes in osm xml format to a yatayat based system
