@@ -1,4 +1,7 @@
 var YY = require('./yatayat.js');
+// Hijack fromOSM call
+require("./fromosm.js")(YY);
+
 var DQ = require('./dataquality.js');
 var docopt = require('./docopt.coffee/');
 

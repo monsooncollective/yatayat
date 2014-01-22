@@ -49,6 +49,9 @@ def parse_args():
     parser.add_argument("--stable",
                         default="transit.stable.xml",
                         help="Where to put overpass data, if stable")
+    parser.add_argument("--gtfs",
+                        default="gtfs",
+                        help="Where to serialize GTFS export")
     parser.add_argument("--no-overpass",
                         default=False,
                         action="store_true",
@@ -115,8 +118,14 @@ def run():
     else:
         # Copy "experimental" to "stable"
         shutil.copy(opts.experimental, opts.stable)
+
+        # Render gtfs derivatives
+        if not os.path.exists(opts.gtfs):
+            os.makedirs(opts.gtfs)
+        subprocess.call([NODE, "dump_gtfs.js", opts.stable, opts.gtfs])
+
         if not opts.silent:
-            push([opts.experimental, opts.stable])
+            push([opts.experimental, opts.stable, opts.gtfs])
 
 if __name__=='__main__':
     run()
