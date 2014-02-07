@@ -6,44 +6,117 @@ var someWayObjs = [
 
 
 describe("Converstion from OSM 2 YY objects", function () {
-    describe("false Happiness", function() {
-        it("1 == 1", function() {
-            expect(1).toEqual(1);
-        });
-    });
-    describe( "registerWay", function () {
+    describe( "registerWay works when there are no stops", function () {
         var reg, p, u, b, f;
         beforeEach(function() {
             p = {}, u = {}, b = {}, f = {};
-            reg = O2Y.registerWay(p, u, b, f);
-        })
-        it("registerWay works for size 1 false", function() {
-            reg(someWayObjs[0], false, false);
+            reg = O2Y.registerWay(p, u, f, b);
+            O2Y.rawOSMNodes = {1: {}, 2: {}, 4: {}, 3: {}};
+        });
+        it("registerWay works for size 1 (no stops)", function() {
+            reg(someWayObjs[0]);
             expect(_.values(p).length).toEqual(0);
             expect(_.values(u).length).toEqual(1);
-            expect(_.values(b).length).toEqual(1);
-            expect(_.values(f).length).toEqual(1);
-            expect(_.first(_.values(u)).latLngs).toContain([1.5,1.5]);
+            expect(_.first(_.values(u)).latLngs).toEqual(
+                [[2,2], [1.5,1.5], [1,1]]);
         });
-        it("registerWay works for size 1 true", function() {
-            reg(someWayObjs[0], true, true);
+        it("registerWay works for 1 and 2 (no stops)", function() {
+            reg(someWayObjs[0]);
+            reg(someWayObjs[1]);
+            expect(_.values(u).length).toEqual(1);
+            expect(_.first(_.values(u)).latLngs).toEqual([
+                [3,3], [2.5,2.5], [2,2], [1.5,1.5], [1,1]
+            ]);
+        });
+        it("registerWay works for 2 and 1 (no stops)", function() {
+            reg(someWayObjs[1]);
+            reg(someWayObjs[0]);
+            expect(_.values(u).length).toEqual(1);
+            expect(_.first(_.values(u)).latLngs).toEqual([
+                [3,3], [2.5,2.5], [2,2], [1.5,1.5], [1,1]
+            ]);
+        });
+        it("registerWay works for 1, 2, and 3 (no stops)", function() {
+            reg(someWayObjs[0]);
+            reg(someWayObjs[1]);
+            expect(_.first(_.values(u)).latLngs).toEqual([
+                [3,3], [2.5,2.5], [2,2], [1.5,1.5], [1,1]
+            ]);
+            reg(someWayObjs[2]);
+            expect(_.values(u).length).toEqual(1);
+            expect(_.first(_.values(u)).latLngs).toEqual([
+                [4,4], [3.5,3.5], [3,3], [2.5,2.5], [2,2], [1.5,1.5], [1,1]
+            ]);
+        });
+    });
+    describe( "registerWay works when there ARE stops", function () {
+        var reg, p, u, b, f;
+        beforeEach(function() {
+            p = {}, u = {}, b = {}, f = {};
+            reg = O2Y.registerWay(p, u, f, b);
+            O2Y.rawOSMNodes = {1: {is_stop: true}, 2:{is_stop: true}, 4:{is_stop: true}, 3:{}};
+        });
+        it("registerWay works for size 1 (stops)", function() {
+            reg(someWayObjs[0]);
             expect(_.values(p).length).toEqual(1);
             expect(_.values(u).length).toEqual(0);
-            expect(_.values(b).length).toEqual(0);
-            expect(_.values(f).length).toEqual(0);
-            expect(_.first(_.values(p)).latLngs).toContain([1.5,1.5]);
+            expect(_.first(_.values(p)).latLngs).toEqual(
+                [[2,2], [1.5,1.5], [1,1]]);
         });
-        it("registerWay works for 1 and 2", function() {
-            reg(someWayObjs[0], false, true);
-            reg(someWayObjs[1], true, true);
+        it("registerWay works for 1 and 2 (stops)", function() {
+            reg(someWayObjs[0]);
+            reg(someWayObjs[1]);
+            expect(_.values(u).length).toEqual(1);
             expect(_.values(p).length).toEqual(1);
+            expect(_.first(_.values(p)).latLngs).toEqual([
+                [2,2], [1.5,1.5], [1,1]
+            ]);
+            expect(_.first(_.values(u)).latLngs).toEqual([
+                [3,3], [2.5,2.5], [2,2]
+            ]);
+        });
+        it("registerWay works for 2 and 1 (stops)", function() {
+            reg(someWayObjs[0]);
+            reg(someWayObjs[1]);
+            expect(_.values(u).length).toEqual(1);
+            expect(_.values(p).length).toEqual(1);
+            expect(_.first(_.values(p)).latLngs).toEqual([
+                [2,2], [1.5,1.5], [1,1]
+            ]);
+            expect(_.first(_.values(u)).latLngs).toEqual([
+                [3,3], [2.5,2.5], [2,2]
+            ]);
+        });
+        it("registerWay works for 1, 2, and 3 (stops)", function() {
+            reg(someWayObjs[0]);
+            reg(someWayObjs[1]);
+            reg(someWayObjs[2]);
             expect(_.values(u).length).toEqual(0);
-            console.log(p);
-            expect(_.first(_.values(p)).latLngs).toContain([1.5,1.5]);
-            expect(_.first(_.values(p)).latLngs).toContain([2.5,2.5]);
+            expect(_.values(p).length).toEqual(2);
+            expect(_.first(_.values(p)).latLngs).toEqual([
+                [2,2], [1.5,1.5], [1,1]
+            ]);
+            expect(_.last(_.values(p)).latLngs).toEqual([
+                [4,4], [3.5,3.5], [3,3], [2.5,2.5], [2,2]
+            ]);
+        });
+        it("registerWay works for 1, 2, and 3 (different order)", function() {
+            reg(someWayObjs[2]);
+            reg(someWayObjs[0]);
+            reg(someWayObjs[1]);
+
+            expect(_.values(u).length).toEqual(0);
+            expect(_.values(p).length).toEqual(2);
+            expect(_.first(_.values(p)).latLngs).toEqual([
+                [2,2], [1.5,1.5], [1,1]
+            ]);
+            expect(_.last(_.values(p)).latLngs).toEqual([
+                [2,2], [2.5,2.5], [3,3], [3.5,3.5], [4,4]
+            ]);
         });
 
-});
+    });
+
 
 
 });
